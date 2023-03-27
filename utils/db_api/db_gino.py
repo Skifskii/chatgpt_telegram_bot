@@ -19,8 +19,8 @@ class BaseModel(db.Model):
             column.name: getattr(self, self._column_name_map[column.name])
             for column in primary_key_columns
         }
-        values_str = " ".join(f"{name}={value!r}" for name, value in values.items())
-        return f"<{model} {values_str}>"
+        values_str = ' '.join(f'{name}={value!r}' for name, value in values.items())
+        return f'<{model} {values_str}>'
 
 
 async def on_startup_db(dispatcher: Dispatcher):
