@@ -12,4 +12,4 @@ async def command_help(message: types.Message):
         await message.answer(help_answer)
     except Exception as error:
         await message.answer('Что-то пошло не так :(')
-        await log_all('start', 'error', message.from_user.id, message.from_user.first_name, error)
+        await log_all('help', 'error', message.from_user.id, message.from_user.first_name, error)
