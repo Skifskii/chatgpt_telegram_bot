@@ -6,11 +6,12 @@ async def on_startup_app(dp):
 
     from utils.notify_admins import notify_admins
 
+    from logs.logging_loguru.logger import logger
+    logger.info('Bot started')
     await notify_admins(dp, 'Bot started')
 
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
-    print('Bot started')
 
 if __name__ == '__main__':
     from aiogram import executor
