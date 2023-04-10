@@ -6,5 +6,5 @@ async def set_default_commands(dp):
         types.BotCommand('help', 'О командах'),
         types.BotCommand('about', 'О боте'),
         types.BotCommand('forget', 'Очистить память'),
-        types.BotCommand('balance', 'Проверить баланс')
+        types.BotCommand('profile', 'Профиль')
     ])

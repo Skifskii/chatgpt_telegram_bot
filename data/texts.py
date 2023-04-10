@@ -27,3 +27,9 @@ forget_answer = """
 balance_answer = """
 Баланс: {user_balance} токенов
 (~{english_words} английских слов)"""
+
+buy_no_email_answer = """
+Введите адрес электронной почты для получения чеков"""
+
+choose_subscription_type_answer = """
+Выберите тип подписки"""
