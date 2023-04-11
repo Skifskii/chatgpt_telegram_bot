@@ -5,8 +5,8 @@ from sqlalchemy import Column, BigInteger, String, sql, Integer, VARCHAR
 class User(BaseModel):
     __tablename__ = 'users'
     user_id = Column(BigInteger, primary_key=True, nullable=False)
-    name = Column(String(64), default="")
-    balance = Column(Integer, default=2000)
+    username = Column(String(64), default="")
+    firstname = Column(String(64), default="")
     chat_story = Column(String, default='{"messages":[]}')
     email = Column(String, default="")
     status = Column(VARCHAR, default="user")

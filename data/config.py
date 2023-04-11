@@ -16,7 +16,9 @@ POSTGRES_URI = f'postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}/{PG_DATABASE}'
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 subscriptions_dict = {
+    'user': 'Нет подписки',
     'gpt': 'GPT',
     'dalle': 'DALL-E',
-    'vip': 'VIP'
+    'vip': 'VIP',
+    'admin': 'Admin'
 }

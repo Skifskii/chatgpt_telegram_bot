@@ -1,15 +1,16 @@
 from asyncpg import UniqueViolationError
 
+from logs.log_all import log_all
 from utils.db_api.schemas.user import User
 
 
 # ---------- User ----------
-async def add_user(user_id: int, name: str):
+async def add_user(user_id: int, username: str, name: str):
     try:
-        user = User(user_id=user_id, name=name)
+        user = User(user_id=user_id, name=name, username=username)
         await user.create()
-    except UniqueViolationError:
-        print('User did not added')
+    except UniqueViolationError as error:
+        await log_all(add_user, error, user_id, name, f'User did not added: {error}')
 
 
 async def select_all_users():
@@ -20,11 +21,6 @@ async def select_all_users():
 async def select_user(user_id):
     user = await User.query.where(User.user_id == user_id).gino.first()
     return user
-
-
-async def increase_balance(user_id, added_amount):
-    user = await select_user(user_id)
-    await user.update(balance=user.balance + added_amount).apply()
 
 
 async def add_story(user_id, messages):

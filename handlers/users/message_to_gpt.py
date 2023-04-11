@@ -32,6 +32,6 @@ async def send(message: types.Message):
         await db_users.add_story(user_id=message.from_user.id, messages=json.dumps(messages))
         await db_stat.add_new_answer_to_stats()
         await db_stat.add_new_tokens_to_stats(tokens_spent)
-        await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.first_name, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(gpt_answer)}\n--------------------')
+        await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.username, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(gpt_answer)}\n--------------------')
     except Exception as error:
         await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, error)
