@@ -1,10 +1,13 @@
 from aiogram import Dispatcher
-from data.config import admins_id
+from logs.logging_loguru.logger import logger
+from utils.db_api.quick_commands import user as db_users
 
 
 async def notify_admins(dp: Dispatcher, text: str):
-    for admin in admins_id:
-        try:
-            await dp.bot.send_message(chat_id=admin, text=text)
-        except Exception as error:
-            print(error)
+    try:
+        users = await db_users.select_all_users()
+        for user in users:
+            if user.status == 'admin':
+                await dp.bot.send_message(chat_id=user.user_id, text=text)
+    except Exception as error:
+        logger.error(f'in notify_admins :: {error}')

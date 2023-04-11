@@ -4,11 +4,8 @@ async def on_startup_app(dp):
     await on_startup_db(dp)
     await db.gino.create_all()
 
-    from utils.notify_admins import notify_admins
-
     from logs.logging_loguru.logger import logger
     logger.info('Bot started')
-    await notify_admins(dp, '⚙ℹ Info\nBot started')
 
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)

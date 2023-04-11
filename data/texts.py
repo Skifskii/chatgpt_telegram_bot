@@ -49,3 +49,5 @@ choose_subscription_type_answer = """
 
 while_answer_is_generating_answer = """
 🤖 Генерирую ответ..."""
+
+telegram_logs_permission_symbols = ['❌', '✅']
