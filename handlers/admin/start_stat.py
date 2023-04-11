@@ -12,7 +12,7 @@ from logs.log_all import log_all
 
 @dp.message_handler(commands='start_stat')
 async def start_stat(message: types.Message):
-    # user = await db_users.select_user(message.from_user.id)
+    # user = await db_users.select_user(message.from_user.id)  # ToDo
     try:
         if len(await db_stat.take_stat()) < 1:
             await db_stat.add_row_to_stats(str(datetime.datetime.today()))

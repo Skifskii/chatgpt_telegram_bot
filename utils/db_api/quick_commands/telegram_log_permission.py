@@ -1,5 +1,6 @@
 from asyncpg import UniqueViolationError
 
+from logs.log_all import log_all
 from utils.db_api.schemas.telegram_log_permission import TelegramLogPermission
 
 
@@ -7,8 +8,8 @@ async def add_row_to_tg_log_permissions():
     try:
         perms = TelegramLogPermission()
         await perms.create()
-    except UniqueViolationError:
-        print('Error in permissions')
+    except UniqueViolationError as error:
+        await log_all('add_row_to_tg_log_permissions', 'error', '', '', f'Row did not added: {error}')
 
 
 async def select_permissions():

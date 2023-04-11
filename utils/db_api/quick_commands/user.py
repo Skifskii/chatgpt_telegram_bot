@@ -10,7 +10,7 @@ async def add_user(user_id: int, username: str, name: str):
         user = User(user_id=user_id, name=name, username=username)
         await user.create()
     except UniqueViolationError as error:
-        await log_all(add_user, error, user_id, name, f'User did not added: {error}')
+        await log_all('add_user', 'error', user_id, name, f'User did not added: {error}')
 
 
 async def select_all_users():

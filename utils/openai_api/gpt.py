@@ -3,7 +3,7 @@ import openai
 
 async def request_to_gpt(request: dict) -> tuple[str, int]:
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model='gpt-3.5-turbo',
         messages=request
     )
-    return response["choices"][0]["message"]["content"], response["usage"]["total_tokens"]
+    return response['choices'][0]['message']['content'], response['usage']['total_tokens']

@@ -1,5 +1,6 @@
 from asyncpg import UniqueViolationError
 
+from logs.log_all import log_all
 from utils.db_api.schemas.stat import EverydayStats
 
 
@@ -7,8 +8,8 @@ async def add_row_to_stats(date_start):
     try:
         stat = EverydayStats(date_start=date_start)
         await stat.create()
-    except UniqueViolationError:
-        print('User did not added')
+    except UniqueViolationError as error:
+        await log_all('add_row_to_stats', 'error', '', '', f'Row did not added: {error}')
 
 
 async def add_new_user_to_stats():
