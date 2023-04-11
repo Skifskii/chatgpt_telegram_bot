@@ -1,10 +1,10 @@
 from logs.logging_loguru.logger import logger
 from utils.notify_admins import notify_admins
 from loader import dp
-from utils.db_api.quick_commands import telegram_log_permission as db_telegram_log_permission  # ToDo
+# from utils.db_api.quick_commands import telegram_log_permission as db_telegram_log_permission  # ToDo
 
 
-async def log_all(func_name, level, user_id='', username='', firstname='', log_message=''):
+async def log_all(func_name, level, user_id='', firstname='', log_message=''):
     emoji = ''
     if level == 'info':
         emoji = '⚙ℹ Info'

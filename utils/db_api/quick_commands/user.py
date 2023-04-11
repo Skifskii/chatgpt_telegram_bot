@@ -5,12 +5,12 @@ from utils.db_api.schemas.user import User
 
 
 # ---------- User ----------
-async def add_user(user_id: int, username: str, name: str):
+async def add_user(user_id: int, username: str, firstname: str):
     try:
-        user = User(user_id=user_id, name=name, username=username)
+        user = User(user_id=user_id, username=username, firstname=firstname)
         await user.create()
     except UniqueViolationError as error:
-        await log_all('add_user', 'error', user_id, name, f'User did not added: {error}')
+        await log_all('add_user', 'error', user_id, firstname, f'User did not added: {error}')
 
 
 async def select_all_users():
