@@ -30,6 +30,7 @@ async def send(message: types.Message):
                 s = s[1:]
             return s
 
+        await db_users.add_story(user_id=message.from_user.id, messages=json.dumps(messages))
         await db_stat.add_new_answer_to_stats()
         await db_stat.add_new_tokens_to_stats(response["usage"]["total_tokens"])
         await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.first_name, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(response["choices"][0]["message"]["content"])}\n--------------------')
