@@ -8,7 +8,7 @@ async def on_startup_app(dp):
 
     from logs.logging_loguru.logger import logger
     logger.info('Bot started')
-    await notify_admins(dp, 'Bot started')
+    await notify_admins(dp, '⚙ℹ Info\nBot started')
 
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
