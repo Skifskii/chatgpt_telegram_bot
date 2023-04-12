@@ -17,7 +17,6 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 subscriptions_dict = {
     'user': 'Нет подписки',
     'gpt': 'GPT',
-    'dalle': 'DALL-E',
     'vip': 'VIP',
     'admin': 'Admin'
 }

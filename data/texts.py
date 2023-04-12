@@ -31,7 +31,7 @@ forget_answer = """
 🤖
 Вы успешно очистили память бота!"""
 
-balance_answer = """
+profile_answer = """
 👤 {user_name}
 Подписка: {user_subscription}"""
 
