@@ -3,7 +3,7 @@ import json
 from aiogram import types
 from aiogram.types import ChatActions
 
-from data.texts import while_answer_is_generating_answer
+from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ask_gpt_ban_answer
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -15,13 +15,21 @@ from utils.openai_api.gpt import request_to_gpt
 @dp.message_handler()
 async def send(message: types.Message):
     try:
+        user = await db_users.select_user(message.from_user.id)
+        if user.status == 'user':
+            await message.answer(ask_gpt_without_subscribe_answer)
+            return
+        if user.status == 'ban':
+            await message.answer(ask_gpt_ban_answer)
+            return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
         await db_stat.add_new_request_to_stats()
         messages = json.loads(await db_users.get_story(message.from_user.id))
         messages['messages'].append({"role": "user", "content": message.text})
 
-        gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
+        # gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
+        gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
         await message.answer(gpt_answer)

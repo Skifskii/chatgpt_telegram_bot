@@ -54,8 +54,9 @@ async def check_email(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(text_contains='btn_subscribe', state=Buy.subscription)
 async def choose_subscription_type(query: types.CallbackQuery, state: FSMContext):
     try:
-        subscription_type = subscriptions_dict[query.data.split('_')[-1]]
-        await query.message.edit_text(choose_subscription_type_answer.format(subscription_type=subscription_type))
+        subscription_type = query.data.split('_')[-1]
+        await db_users.set_status(query.from_user.id, subscription_type)
+        await query.message.edit_text(choose_subscription_type_answer.format(subscription_type=subscriptions_dict[subscription_type]))
         await state.finish()
     except Exception as error:
         await query.message.answer(unknown_error_answer)
