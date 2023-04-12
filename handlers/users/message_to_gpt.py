@@ -29,8 +29,8 @@ async def send(message: types.Message):
         messages = json.loads(await db_users.get_story(message.from_user.id))
         messages['messages'].append({"role": "user", "content": message.text})
 
-        # gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
-        gpt_answer, tokens_spent = 'hi', 1
+        gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
+        # gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
         await message.answer(gpt_answer)

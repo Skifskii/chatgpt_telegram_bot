@@ -31,7 +31,7 @@ async def btn_buy_pressed(query: types.CallbackQuery):
             await query.message.edit_text(buy_no_email_answer)
             await Buy.email.set()
         else:
-            await query.message.answer(check_email_answer, reply_markup=ikb_subscribe)
+            await query.message.edit_text(check_email_answer, reply_markup=ikb_subscribe)
             await Buy.subscription.set()
     except Exception as error:
         await query.message.answer(unknown_error_answer)
