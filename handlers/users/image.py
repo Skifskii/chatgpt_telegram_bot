@@ -53,13 +53,12 @@ async def choose_image_size(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text_contains='btn_size', state=Image.size)
 async def generate_image(query: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    new_prompt = data.get('prompt')
+    translated_prompt = data.get('translated_prompt')
     try:
         new_size = query.data.split('_')[-1]
         new_size = f'{new_size}x{new_size}'
-
-        data = await state.get_data()
-        new_prompt = data.get('prompt')
-        translated_prompt = data.get('translated_prompt')
 
         await query.message.edit_text(generating_image_message)
 
@@ -80,7 +79,7 @@ async def generate_image(query: types.CallbackQuery, state: FSMContext):
         await log_all('generate_image', 'warning', query.from_user.id, query.from_user.first_name, error)
         await bot.send_message(query.message.chat.id, openai_dalle_error_message)
     except openai.error.InvalidRequestError as error:
-        await log_all('generate_image', 'warning', query.from_user.id, query.from_user.first_name, error)
+        await log_all('generate_image', 'warning', query.from_user.id, query.from_user.first_name, f'{error}\nprompt: {new_prompt}\ntranslated prompt: {translated_prompt}')
         await bot.send_message(query.message.chat.id, openai_dalle_bad_request_error_message)
     except Exception as error:
         await log_all('generate_image', 'error', query.from_user.id, query.from_user.first_name, error)
