@@ -17,3 +17,6 @@ ikb_choose_new_status.insert(btn_status_admin)
 
 btn_status_ban = InlineKeyboardButton(text='Ban user', callback_data='btn_status_ban')
 ikb_choose_new_status.insert(btn_status_ban)
+
+btn_back = InlineKeyboardButton(text='🔙 Отмена', callback_data='btn_back')
+ikb_choose_new_status.insert(btn_back)

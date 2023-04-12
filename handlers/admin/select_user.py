@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline import ikb_change_user_status, ikb_choose_new_status
-from loader import dp
+from loader import dp, bot
 from states import SelectUser
 from utils.db_api.quick_commands import user as db_users
 
@@ -62,6 +62,12 @@ async def btn_buy_pressed(query: types.CallbackQuery, state: FSMContext):
         await state.finish()
 
 
+@dp.callback_query_handler(text_contains='btn_back', state=SelectUser.status)
+async def tglog_messages_back(query: types.CallbackQuery, state: FSMContext):
+    await bot.delete_message(query.message.chat.id, query.message.message_id)
+    await state.finish()
+
+
 @dp.callback_query_handler(text_contains='btn_status', state=SelectUser.select_new_status)
 async def generate_image(query: types.CallbackQuery, state: FSMContext):
     try:
@@ -75,4 +81,9 @@ async def generate_image(query: types.CallbackQuery, state: FSMContext):
         await query.message.answer(unknown_error_answer)
         await log_all('btn_change_status', 'error', query.message.from_user.id, query.message.from_user.first_name,
                       error)
+    await state.finish()
+
+@dp.callback_query_handler(text_contains='btn_back', state=SelectUser.select_new_status)
+async def tglog_messages_back(query: types.CallbackQuery, state: FSMContext):
+    await bot.delete_message(query.message.chat.id, query.message.message_id)
     await state.finish()
