@@ -113,5 +113,5 @@ admin_funcs_info_answer = """
 /stat - статистика
 /select_user - данные пользователя
 /setup_telegram_logs - настройка логов
-/send_to_users <message> - рассылка
+/send_to_users (message) - рассылка
 """

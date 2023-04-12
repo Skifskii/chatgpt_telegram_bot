@@ -52,7 +52,6 @@ async def btn_buy_pressed(query: types.CallbackQuery, state: FSMContext):
         data = await state.get_data()
         await query.message.edit_text(f"""
 👤 Пользователь {data.get('user_id')}
-Статус: {data.get('status')}
 
 Выберите новый статус
 """, reply_markup=ikb_choose_new_status)
