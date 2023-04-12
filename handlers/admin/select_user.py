@@ -1,0 +1,82 @@
+import datetime
+
+from aiogram import types
+from aiogram.dispatcher import FSMContext
+
+from keyboards.inline import ikb_change_user_status, ikb_choose_new_status
+from loader import dp
+from states import SelectUser
+from utils.db_api.quick_commands import user as db_users
+from utils.db_api.quick_commands import stat as db_stat
+
+from data.texts import unknown_error_answer, select_user_answer, select_new_status_answer
+from logs.log_all import log_all
+
+
+@dp.message_handler(commands='select_user', state=None)
+async def select_user(message: types.Message):
+    try:
+        user = await db_users.select_user(message.from_user.id)
+        if user.status != 'admin':
+            return
+        await message.answer(select_user_answer)
+        await SelectUser.user_id.set()
+    except Exception as error:
+        await message.answer(unknown_error_answer)
+        await log_all('select_user', 'error', message.from_user.id, message.from_user.first_name, error)
+
+
+@dp.message_handler(state=SelectUser.user_id)
+async def print_user_info(message: types.Message, state: FSMContext):
+    try:
+        user_id = message.text
+        await state.update_data(user_id=int(user_id))
+        user = await db_users.select_user(int(user_id))
+        await message.answer(f"""
+👤 Пользователь {user_id}
+
+имя: {user.firstname}
+username: @{user.username}
+статус: {user.status}
+
+запросов к ChatGPT: {user.total_messages_sent}
+изображений сгенерировано: {user.total_images_generated}
+""", reply_markup=ikb_change_user_status)
+        await SelectUser.status.set()
+    except Exception as error:
+        await message.answer(unknown_error_answer)
+        await log_all('print_user_info', 'error', message.from_user.id, message.from_user.first_name, error)
+        await state.finish()
+
+
+@dp.callback_query_handler(text_contains='btn_change_status', state=SelectUser.status)
+async def btn_buy_pressed(query: types.CallbackQuery, state: FSMContext):
+    try:
+        data = await state.get_data()
+        await query.message.edit_text(f"""
+👤 Пользователь {data.get('user_id')}
+Статус: {data.get('status')}
+
+Выберите новый статус
+""", reply_markup=ikb_choose_new_status)
+        await SelectUser.select_new_status.set()
+    except Exception as error:
+        await query.message.answer(unknown_error_answer)
+        await log_all('btn_change_status', 'error', query.message.from_user.id, query.message.from_user.first_name, error)
+        await state.finish()
+
+
+@dp.callback_query_handler(text_contains='btn_status', state=SelectUser.select_new_status)
+async def generate_image(query: types.CallbackQuery, state: FSMContext):
+    try:
+        data = await state.get_data()
+
+        user_id = data.get('user_id')
+        new_status = query.data.split('_')[-1]
+        await db_users.set_status(user_id, new_status)
+        await query.message.edit_text(select_new_status_answer.format(user_id=user_id, new_status=new_status))
+    except Exception as error:
+        await query.message.answer(unknown_error_answer)
+        await log_all('btn_change_status', 'error', query.message.from_user.id, query.message.from_user.first_name,
+                      error)
+    await state.finish()

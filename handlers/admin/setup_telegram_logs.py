@@ -13,11 +13,12 @@ from logs.log_all import log_all
 async def setup_telegram_logs(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
-        if user.status == 'admin':
-            statuses = (await db_tgperms.select_permissions())[0]
-            await bot.send_message(message.from_user.id,
-                                   f'{telegram_logs_permission_symbols[statuses.info]} Info\n{telegram_logs_permission_symbols[statuses.warning]} Warning\n{telegram_logs_permission_symbols[statuses.error]} Error',
-                                   reply_markup=ikb_telegram_logs_permissions)
+        if user.status != 'admin':
+            return
+        statuses = (await db_tgperms.select_permissions())[0]
+        await bot.send_message(message.from_user.id,
+                               f'{telegram_logs_permission_symbols[statuses.info]} Info\n{telegram_logs_permission_symbols[statuses.warning]} Warning\n{telegram_logs_permission_symbols[statuses.error]} Error',
+                               reply_markup=ikb_telegram_logs_permissions)
     except Exception as error:
         await message.answer(unknown_error_answer)
         await log_all('setup_telegram_logs', 'error', message.from_user.id, message.from_user.first_name, error)
