@@ -1,3 +1,4 @@
+from .admin_funcs_info import dp
 from .stat import dp
 from .start_stat import dp
 from .setup_telegram_logs import dp

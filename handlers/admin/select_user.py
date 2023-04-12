@@ -1,5 +1,3 @@
-import datetime
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
@@ -7,7 +5,6 @@ from keyboards.inline import ikb_change_user_status, ikb_choose_new_status
 from loader import dp
 from states import SelectUser
 from utils.db_api.quick_commands import user as db_users
-from utils.db_api.quick_commands import stat as db_stat
 
 from data.texts import unknown_error_answer, select_user_answer, select_new_status_answer
 from logs.log_all import log_all

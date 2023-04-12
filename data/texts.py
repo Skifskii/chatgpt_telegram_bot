@@ -106,3 +106,11 @@ stat_answer = """
 - Пользователи: {total_num_of_users}
 - Количество запросов: {total_number_of_messages}
 - Сгенерированные изображения: {total_number_of_images}"""
+
+admin_funcs_info_answer = """
+⚙ admin panel ⚙
+
+/stat - статистика
+/select_user - данные пользователя
+/setup_telegram_logs - настройка логов
+"""
