@@ -3,7 +3,8 @@ import json
 from aiogram import types
 from aiogram.types import ChatActions
 
-from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ask_gpt_ban_answer
+from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ban_answer, \
+    unknown_error_answer
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -20,7 +21,7 @@ async def send(message: types.Message):
             await message.answer(ask_gpt_without_subscribe_answer)
             return
         if user.status == 'ban':
-            await message.answer(ask_gpt_ban_answer)
+            await message.answer(ban_answer)
             return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
@@ -46,4 +47,5 @@ async def send(message: types.Message):
         await db_users.commit_new_message(user_id=message.from_user.id)
         await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.first_name, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(gpt_answer)}\n--------------------')
     except Exception as error:
+        await message.answer(unknown_error_answer)
         await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, error)

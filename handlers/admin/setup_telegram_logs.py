@@ -1,6 +1,6 @@
 from aiogram import types
 
-from keyboards.inline.ikb_telegram_logs_permissions import ikb_telegram_logs_permissions
+from keyboards.inline import ikb_telegram_logs_permissions
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import telegram_log_permission as db_tgperms
