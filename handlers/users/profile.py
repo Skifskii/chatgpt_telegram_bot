@@ -1,13 +1,16 @@
+from datetime import date, timedelta
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline import ikb_buy, ikb_subscribe
 from loader import dp
 from utils.db_api.quick_commands import user as db_users
+from utils.yookassa_api.new_payment import create_new_payment, check_payment_status
 
-from data.config import subscriptions_dict
+from data.config import subscriptions_dict, subscription_prices
 from data.texts import profile_answer, buy_no_email_answer, check_email_answer, choose_subscription_type_answer, \
-    unknown_error_answer
+    unknown_error_answer, payment_link_message
 from logs.log_all import log_all
 from states import Buy
 
@@ -55,9 +58,20 @@ async def check_email(message: types.Message, state: FSMContext):
 async def choose_subscription_type(query: types.CallbackQuery, state: FSMContext):
     try:
         subscription_type = query.data.split('_')[-1]
-        await db_users.set_status(query.from_user.id, subscription_type)
-        await query.message.edit_text(choose_subscription_type_answer.format(subscription_type=subscriptions_dict[subscription_type]))
+        user = await db_users.select_user(query.from_user.id)
+        payment_data = await create_new_payment(subscription_prices[subscription_type], subscriptions_dict[subscription_type], user)
+        await query.message.edit_text(payment_link_message.format(payment_link=payment_data["confirmation"]["confirmation_url"]))
         await state.finish()
+        is_successful = await check_payment_status(payment_data, user)
+
+        if is_successful:
+            await db_users.set_status(query.from_user.id, subscription_type)
+            await db_users.set_date_subscription_finish(query.from_user.id, str((date.today() + timedelta(days=30))))
+            await query.message.edit_text(choose_subscription_type_answer.format(subscription_type=subscriptions_dict[subscription_type]))
+            await log_all('choose_subscription_type', 'info', user.user_id, user.firstname, f'Subscribed {subscriptions_dict[subscription_type]}')
+        else:
+            await query.message.edit_text(unknown_error_answer)
+            await log_all('choose_subscription_type', 'info', user.user_id, user.firstname, f'Failed attempt to subscribe {subscriptions_dict[subscription_type]}')
     except Exception as error:
         await query.message.answer(unknown_error_answer)
         await log_all('choose_subscription_type', 'error', query.message.from_user.id, query.message.from_user.first_name, error)

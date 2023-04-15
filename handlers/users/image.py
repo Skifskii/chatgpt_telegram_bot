@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 import openai
 from aiogram import types
@@ -9,7 +10,8 @@ from deep_translator import GoogleTranslator
 
 from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ban_answer, \
     ask_dalle_without_subscribe_answer, image_command_answer, choose_image_size_message, unknown_error_answer, \
-    generating_image_message, openai_dalle_error_message, openai_dalle_bad_request_error_message
+    generating_image_message, openai_dalle_error_message, openai_dalle_bad_request_error_message, \
+    subscription_finished_message
 from keyboards.inline import ikb_image_size
 from loader import dp, bot
 from states import Image
@@ -30,6 +32,9 @@ async def image_command(message: types.Message):
             return
         if user.status == 'ban':
             await message.answer(ban_answer)
+            return
+        if user.status != 'admin' and user.date_subscription_finish <= str(date.today()):
+            await message.answer(subscription_finished_message)
             return
         await message.answer(image_command_answer)
         await Image.prompt.set()

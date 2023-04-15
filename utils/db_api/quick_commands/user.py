@@ -5,9 +5,9 @@ from utils.db_api.schemas.user import User
 
 
 # ---------- User ----------
-async def add_user(user_id: int, username: str, firstname: str):
+async def add_user(user_id: int, username: str, firstname: str, date_subscription_finish):
     try:
-        user = User(user_id=user_id, username=username, firstname=firstname)
+        user = User(user_id=user_id, username=username, firstname=firstname, date_subscription_finish=date_subscription_finish)
         await user.create()
     except UniqueViolationError as error:
         await log_all('add_user', 'error', user_id, firstname, f'User did not added: {error}')
@@ -67,3 +67,8 @@ async def set_user_status_for_all():
     users = await select_all_users()
     for user in users:
         await user.update(status='user', total_images_generated=0, total_messages_sent=0).apply()
+
+
+async def set_date_subscription_finish(user_id, date):
+    user = await select_user(user_id)
+    await user.update(date_subscription_finish=date).apply()

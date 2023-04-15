@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
@@ -76,6 +78,7 @@ async def generate_image(query: types.CallbackQuery, state: FSMContext):
         user_id = data.get('user_id')
         new_status = query.data.split('_')[-1]
         await db_users.set_status(user_id, new_status)
+        await db_users.set_date_subscription_finish(user_id, str(date.today() + timedelta(days=30)))
         await query.message.edit_text(select_new_status_answer.format(user_id=user_id, new_status=new_status))
     except Exception as error:
         await query.message.answer(unknown_error_answer)

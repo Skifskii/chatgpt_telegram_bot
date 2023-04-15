@@ -1,10 +1,12 @@
+from datetime import date
+
 import json
 
 from aiogram import types
 from aiogram.types import ChatActions
 
 from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ban_answer, \
-    unknown_error_answer
+    unknown_error_answer, subscription_finished_message
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -22,6 +24,9 @@ async def send(message: types.Message):
             return
         if user.status == 'ban':
             await message.answer(ban_answer)
+            return
+        if user.status != 'admin' and user.date_subscription_finish <= str(date.today()):
+            await message.answer(subscription_finished_message)
             return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
         await bot.send_chat_action(message.chat.id, ChatActions.TYPING)

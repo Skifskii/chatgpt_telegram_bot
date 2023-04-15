@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from aiogram import types
 
 from loader import dp
@@ -13,7 +15,7 @@ async def command_start(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
         if not user:
-            await db_users.add_user(user_id=message.from_user.id, username=message.from_user.username, firstname=message.from_user.first_name)
+            await db_users.add_user(user_id=message.from_user.id, username=message.from_user.username, firstname=message.from_user.first_name, date_subscription_finish=str(date.today()-timedelta(days=1)))
             await db_stat.add_new_user_to_stats()
             await log_all('start', 'info', message.from_user.id, message.from_user.first_name, 'New user')
     except Exception as error:
