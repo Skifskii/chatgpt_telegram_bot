@@ -72,3 +72,8 @@ async def set_user_status_for_all():
 async def set_date_subscription_finish(user_id, date):
     user = await select_user(user_id)
     await user.update(date_subscription_finish=date).apply()
+
+
+async def set_username(user_id, username):
+    user = await select_user(user_id)
+    await user.update(username=username).apply()
