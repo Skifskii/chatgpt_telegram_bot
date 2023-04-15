@@ -29,7 +29,6 @@ async def send(message: types.Message):
             await message.answer(subscription_finished_message)
             return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
-        await bot.send_chat_action(message.chat.id, ChatActions.TYPING)
         await db_stat.add_new_request_to_stats()
         messages = json.loads(await db_users.get_story(message.from_user.id))
         messages['messages'].append({"role": "user", "content": message.text})
@@ -53,4 +52,5 @@ async def send(message: types.Message):
         await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.first_name, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(gpt_answer)}\n--------------------')
     except Exception as error:
         await message.answer(unknown_error_answer)
+        print(Exception)
         await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, error)

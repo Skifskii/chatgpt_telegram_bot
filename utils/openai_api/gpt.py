@@ -2,7 +2,7 @@ import openai
 
 
 async def request_to_gpt(request: dict) -> tuple[str, int]:
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
         model='gpt-3.5-turbo',
         messages=request
     )
