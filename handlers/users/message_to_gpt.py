@@ -2,11 +2,12 @@ from datetime import date
 
 import json
 
+import openai
 from aiogram import types
 from aiogram.types import ChatActions
 
 from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ban_answer, \
-    unknown_error_answer, subscription_finished_message
+    unknown_error_answer, subscription_finished_message, RateLimitError_answer, InvalidRequestError_answer
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -50,7 +51,15 @@ async def send(message: types.Message):
         await db_stat.add_new_tokens_to_stats(tokens_spent)
         await db_users.commit_new_message(user_id=message.from_user.id)
         await log_all('message_to_gpt', 'info', message.from_user.id, message.from_user.first_name, f'\n--------------------\nMessage:\n{message.text}\n\nAnswer:\n{replace_bsn_from_start(gpt_answer)}\n--------------------')
+    except openai.error.InvalidRequestError as error:
+        await db_users.clear_story(message.from_user.id)
+        await message.answer(InvalidRequestError_answer)
+        await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name,
+                      f'openai.error.InvalidRequestError - {error}')
+    except openai.error.RateLimitError as error:
+        await message.answer(RateLimitError_answer)
+        await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, f'openai.error.RateLimitError - {error}')
     except Exception as error:
         await message.answer(unknown_error_answer)
-        print(Exception)
+        print(Exception.with_traceback())
         await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, error)
