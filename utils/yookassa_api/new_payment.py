@@ -7,40 +7,37 @@ from yookassa import Payment
 from logs.log_all import log_all
 
 
-async def create_new_payment(price, subscription_name, user):
-    try:
-        new_payment = Payment.create({
-                "amount": {
-                    "value": f"{price}.00",
-                    "currency": "RUB"
+async def create_new_payment(price, subscription_name, email):
+    new_payment = Payment.create({
+            "amount": {
+                "value": f"{price}.00",
+                "currency": "RUB"
+            },
+            "confirmation": {
+                "type": "redirect",
+                "return_url": "https://t.me/chatgpt_davinci_aibot"
+            },
+            "capture": True,
+            "description": subscription_name,
+            "receipt": {
+                "customer": {
+                    "email": email
                 },
-                "confirmation": {
-                    "type": "redirect",
-                    "return_url": "https://t.me/chatgpt_davinci_aibot"
-                },
-                "capture": True,
-                "description": subscription_name,
-                "receipt": {
-                    "customer": {
-                        "email": user.email
-                    },
-                    "items": [
-                        {
-                            "description": subscription_name,
-                            "quantity": "1",
-                            "amount": {
-                                "value": f"{price}.00",
-                                "currency": "RUB"
-                            },
-                            "vat_code": "1"
-                        }
-                    ]
-                }
-            }, uuid.uuid4())
-        payment_data = json.loads(new_payment.json())
-        return payment_data
-    except Exception as error:
-        await log_all('create_new_payment', 'error', user.user_id, user.firstname, error)
+                "items": [
+                    {
+                        "description": subscription_name,
+                        "quantity": "1",
+                        "amount": {
+                            "value": f"{price}.00",
+                            "currency": "RUB"
+                        },
+                        "vat_code": "1"
+                    }
+                ]
+            }
+        }, uuid.uuid4())
+    payment_data = json.loads(new_payment.json())
+    return payment_data
 
 
 async def check_payment_status(payment_data, user):
