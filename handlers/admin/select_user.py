@@ -3,12 +3,13 @@ from datetime import date, timedelta
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from keyboards.inline import ikb_change_user_status, ikb_choose_new_status
+from keyboards.inline import ikb_actions_with_user, ikb_choose_new_status
 from loader import dp, bot
 from states import SelectUser
 from utils.db_api.quick_commands import user as db_users
 
-from data.texts import unknown_error_answer, select_user_answer, select_new_status_answer
+from data.texts import unknown_error_answer, select_user_answer, select_new_status_answer, message_to_user_message, \
+    message_to_user_sent_message
 from logs.log_all import log_all
 
 
@@ -37,10 +38,11 @@ async def print_user_info(message: types.Message, state: FSMContext):
 имя: {user.firstname}
 username: @{user.username}
 статус: {user.status}
+окончание подписки (yyyy.mm.dd): {user.date_subscription_finish}
 
 запросов к ChatGPT: {user.total_messages_sent}
 изображений сгенерировано: {user.total_images_generated}
-""", reply_markup=ikb_change_user_status)
+""", reply_markup=ikb_actions_with_user)
         await SelectUser.status.set()
     except Exception as error:
         await message.answer(unknown_error_answer)
@@ -49,7 +51,7 @@ username: @{user.username}
 
 
 @dp.callback_query_handler(text_contains='btn_change_status', state=SelectUser.status)
-async def btn_buy_pressed(query: types.CallbackQuery, state: FSMContext):
+async def btn_change_status(query: types.CallbackQuery, state: FSMContext):
     try:
         data = await state.get_data()
         await query.message.edit_text(f"""
@@ -61,6 +63,30 @@ async def btn_buy_pressed(query: types.CallbackQuery, state: FSMContext):
     except Exception as error:
         await query.message.answer(unknown_error_answer)
         await log_all('btn_change_status', 'error', query.message.from_user.id, query.message.from_user.first_name, error)
+        await state.finish()
+
+
+@dp.callback_query_handler(text_contains='btn_send_message', state=SelectUser.status)
+async def btn_send_message(query: types.CallbackQuery, state: FSMContext):
+    try:
+        await query.message.edit_text(message_to_user_message)
+        await SelectUser.message_to_user.set()
+    except Exception as error:
+        await query.message.answer(unknown_error_answer)
+        await log_all('btn_send_message', 'error', query.message.from_user.id, query.message.from_user.first_name, error)
+        await state.finish()
+
+
+@dp.message_handler(state=SelectUser.message_to_user)
+async def message_to_user_sent(message: types.Message, state: FSMContext):
+    try:
+        data = await state.get_data()
+        await bot.send_message(data.get('user_id'), message.text)
+        await message.answer(message_to_user_sent_message)
+        await state.finish()
+    except Exception as error:
+        await message.answer(unknown_error_answer)
+        await log_all('message_to_user_sent', 'error', message.from_user.id, message.from_user.first_name, error)
         await state.finish()
 
 
