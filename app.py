@@ -10,6 +10,12 @@ async def on_startup_app(dp):
     from utils.set_bot_commands import set_default_commands
     await set_default_commands(dp)
 
+    import filters
+    filters.setup(dp)
+
+    from utils.is_new_day import is_new_day
+    # await is_new_day()
+
 if __name__ == '__main__':
     from aiogram import executor
     from handlers import dp

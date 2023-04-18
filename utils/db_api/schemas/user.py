@@ -8,9 +8,10 @@ class User(BaseModel):
     username = Column(String(64), default='')
     firstname = Column(String(64), default='')
     chat_story = Column(String, default='{"messages":[]}')
-    email = Column(String, default='')
     status = Column(VARCHAR, default='user')
-    date_subscription_finish = Column(String, default='')
+    limit = Column(Integer, default=3)
+    max_limit = Column(Integer, default=3)
+    # date_subscription_finish = Column(String, default='')
     total_images_generated = Column(Integer, default=0)
     total_messages_sent = Column(Integer, default=0)
 

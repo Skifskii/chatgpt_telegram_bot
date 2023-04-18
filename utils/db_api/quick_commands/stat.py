@@ -6,7 +6,7 @@ from utils.db_api.schemas.stat import EverydayStats
 
 async def add_row_to_stats(date_start):
     try:
-        stat = EverydayStats(date_start=date_start)
+        stat = EverydayStats(date_today=date_start)
         await stat.create()
     except UniqueViolationError as error:
         await log_all('add_row_to_stats', 'error', '', '', f'Row did not added: {error}')
@@ -34,7 +34,7 @@ async def add_new_tokens_to_stats(tokens):
 
 async def add_new_date(date):
     stat = (await EverydayStats.query.gino.all())[0]
-    await stat.update(date_start=date).apply()
+    await stat.update(date_today=date).apply()
 
 
 async def take_stat():
@@ -44,4 +44,4 @@ async def take_stat():
 
 async def reset_stat(date):
     stat = (await EverydayStats.query.gino.all())[0]
-    await stat.update(date_start=date, num_of_new_users=0, num_of_new_requests=0, num_of_new_answers=0, num_of_tokens=0).apply()
+    await stat.update(date_today=date, num_of_new_users=0, num_of_new_requests=0, num_of_new_answers=0, num_of_tokens=0).apply()

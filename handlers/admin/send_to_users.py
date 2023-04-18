@@ -1,5 +1,6 @@
 from aiogram import types
 
+from filters import IsAdmin
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 
@@ -7,7 +8,7 @@ from data.texts import unknown_error_answer
 from logs.log_all import log_all
 
 
-@dp.message_handler(commands='send_to_users')
+@dp.message_handler(IsAdmin(), commands='send_to_users')
 async def send_to_users(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)

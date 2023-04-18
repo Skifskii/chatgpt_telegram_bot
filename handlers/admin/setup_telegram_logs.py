@@ -1,5 +1,6 @@
 from aiogram import types
 
+from filters import IsAdmin
 from keyboards.inline import ikb_telegram_logs_permissions
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
@@ -9,7 +10,7 @@ from data.texts import unknown_error_answer, telegram_logs_permission_symbols
 from logs.log_all import log_all
 
 
-@dp.message_handler(commands='setup_telegram_logs')
+@dp.message_handler(IsAdmin(), commands='setup_telegram_logs')
 async def setup_telegram_logs(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)

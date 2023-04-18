@@ -9,16 +9,18 @@ from states import SelectUser
 from utils.db_api.quick_commands import user as db_users
 
 from data.texts import unknown_error_answer, select_user_answer, select_new_status_answer, message_to_user_message, \
-    message_to_user_sent_message
+    message_to_user_sent_message, user_not_found_error_answer
 from logs.log_all import log_all
 
+from filters import IsAdmin
 
-@dp.message_handler(commands='select_user', state=None)
+
+@dp.message_handler(IsAdmin(), commands='select_user', state=None)
 async def select_user(message: types.Message):
     try:
-        user = await db_users.select_user(message.from_user.id)
-        if user.status != 'admin':
-            return
+        # user = await db_users.select_user(message.from_user.id)
+        # if user.status != 'admin':
+        #     return
         await message.answer(select_user_answer)
         await SelectUser.user_id.set()
     except Exception as error:
@@ -38,12 +40,15 @@ async def print_user_info(message: types.Message, state: FSMContext):
 имя: {user.firstname}
 username: @{user.username}
 статус: {user.status}
-окончание подписки (yyyy.mm.dd): {user.date_subscription_finish}
 
 запросов к ChatGPT: {user.total_messages_sent}
 изображений сгенерировано: {user.total_images_generated}
 """, reply_markup=ikb_actions_with_user)
         await SelectUser.status.set()
+    except AttributeError as error:
+        await message.answer(user_not_found_error_answer)
+        await log_all('print_user_info', 'error', message.from_user.id, message.from_user.first_name, error)
+        await state.finish()
     except Exception as error:
         await message.answer(unknown_error_answer)
         await log_all('print_user_info', 'error', message.from_user.id, message.from_user.first_name, error)
@@ -104,7 +109,6 @@ async def generate_image(query: types.CallbackQuery, state: FSMContext):
         user_id = data.get('user_id')
         new_status = query.data.split('_')[-1]
         await db_users.set_status(user_id, new_status)
-        await db_users.set_date_subscription_finish(user_id, str(date.today() + timedelta(days=30)))
         await query.message.edit_text(select_new_status_answer.format(user_id=user_id, new_status=new_status))
     except Exception as error:
         await query.message.answer(unknown_error_answer)

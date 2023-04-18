@@ -21,7 +21,8 @@ subscriptions_dict = {
     'user': 'Нет подписки',
     'gpt': 'GPT',
     'vip': 'VIP',
-    'admin': 'Admin'
+    'admin': 'Admin',
+    'ban': 'Ban'
 }
 
 subscription_prices = {

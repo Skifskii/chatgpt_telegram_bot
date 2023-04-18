@@ -1,5 +1,6 @@
 from aiogram import types
 
+from filters import IsAdmin
 from loader import dp
 from utils.db_api.quick_commands import user as db_users
 
@@ -7,7 +8,7 @@ from data.texts import unknown_error_answer, admin_funcs_info_answer
 from logs.log_all import log_all
 
 
-@dp.message_handler(commands='admin')
+@dp.message_handler(IsAdmin(), commands='admin')
 async def admin_funcs_info(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)

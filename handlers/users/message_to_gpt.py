@@ -4,10 +4,9 @@ import json
 
 import openai
 from aiogram import types
-from aiogram.types import ChatActions
 
-from data.texts import while_answer_is_generating_answer, ask_gpt_without_subscribe_answer, ban_answer, \
-    unknown_error_answer, subscription_finished_message, RateLimitError_answer, InvalidRequestError_answer
+from data.texts import while_answer_is_generating_answer, \
+    unknown_error_answer, RateLimitError_answer, InvalidRequestError_answer
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -15,28 +14,20 @@ from utils.db_api.quick_commands import stat as db_stat
 from logs.log_all import log_all
 from utils.openai_api.gpt import request_to_gpt
 
+from filters import IsNotBanned
 
-@dp.message_handler()
+
+@dp.message_handler(IsNotBanned())
 async def send(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
-        await db_users.set_username(user.user_id, message.from_user.username)
-        if user.status == 'user':
-            await message.answer(ask_gpt_without_subscribe_answer)
-            return
-        if user.status == 'ban':
-            await message.answer(ban_answer)
-            return
-        if user.status != 'admin' and user.date_subscription_finish <= str(date.today()):
-            await message.answer(subscription_finished_message)
-            return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
         await db_stat.add_new_request_to_stats()
         messages = json.loads(await db_users.get_story(message.from_user.id))
         messages['messages'].append({"role": "user", "content": message.text})
 
-        gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
-        # gpt_answer, tokens_spent = 'hi', 1
+        # gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
+        gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
         await message.answer(gpt_answer)
@@ -48,6 +39,8 @@ async def send(message: types.Message):
             return s
 
         await db_users.add_story(user_id=message.from_user.id, messages=json.dumps(messages))
+        if user.limit > 0:
+            await db_users.reset_limit(message.from_user.id, user.limit - 1)
         await db_stat.add_new_answer_to_stats()
         await db_stat.add_new_tokens_to_stats(tokens_spent)
         await db_users.commit_new_message(user_id=message.from_user.id)
