@@ -6,3 +6,4 @@ class SelectUser(StatesGroup):
     status = State()
     select_new_status = State()
     message_to_user = State()
+    new_limit = State()

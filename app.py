@@ -13,8 +13,11 @@ async def on_startup_app(dp):
     import filters
     filters.setup(dp)
 
-    from utils.is_new_day import is_new_day
-    # await is_new_day()
+    from utils.is_new_day import set_new_day
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(set_new_day, trigger='cron', hour=0, minute=0, start_date='2023-04-19')
+    scheduler.start()
 
 if __name__ == '__main__':
     from aiogram import executor

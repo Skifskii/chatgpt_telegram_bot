@@ -8,11 +8,9 @@ from aiogram.dispatcher.filters import Command
 from aiogram.types import ChatActions
 from deep_translator import GoogleTranslator
 
-from data.texts import ban_answer, \
-    ask_dalle_without_subscribe_answer, image_command_answer, choose_image_size_message, unknown_error_answer, \
-    generating_image_message, openai_dalle_error_message, openai_dalle_bad_request_error_message, \
-    subscription_finished_message, limit_answer
-from filters import IsNotBanned
+from data.texts import image_command_answer, choose_image_size_message, unknown_error_answer, \
+    generating_image_message, openai_dalle_error_message, openai_dalle_bad_request_error_message, ban_answer, \
+    limit_answer
 from keyboards.inline import ikb_image_size
 from loader import dp, bot
 from states import Image
@@ -23,10 +21,17 @@ from logs.log_all import log_all
 from utils.openai_api.dalle import request_to_dalle
 
 
-@dp.message_handler(Command('image'), IsNotBanned(), state=None)
+@dp.message_handler(Command('image'), state=None)
 async def image_command(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
+        user = await db_users.select_user(message.from_user.id)
+        if user.status == 'ban':
+            await message.answer(ban_answer)
+            return False
+        if user.status == 'user' and user.limit == 0:
+            await message.answer(limit_answer)
+            return False
         await message.answer(image_command_answer)
         await Image.prompt.set()
     except Exception as error:
@@ -65,7 +70,8 @@ async def generate_image(query: types.CallbackQuery, state: FSMContext):
         await bot.send_photo(query.message.chat.id, photo)
 
         user = await db_users.select_user(query.from_user.id)
-        await db_users.reset_limit(query.from_user.id, user.limit - 1)
+        if user.limit > 0:
+            await db_users.reset_limit(query.from_user.id, user.limit - 1)
         await db_users.commit_new_image(user_id=query.from_user.id)
 
         await log_all('generate_image',

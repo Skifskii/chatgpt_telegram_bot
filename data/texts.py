@@ -115,6 +115,10 @@ select_user_answer = """
 🤖
 Введите id пользователя"""
 
+select_new_limit_answer = """
+🤖
+Введите число доступных пользователю запросов (в день)"""
+
 select_new_status_answer = """
 🤖
 Статус пользователя {user_id} изменен на {new_status}"""
@@ -136,13 +140,13 @@ stat_answer = """
 - Сгенерированные изображения: {total_number_of_images}"""
 
 admin_funcs_info_answer = """
-⚙ admin panel ⚙
-
+⚙ `admin panel` ⚙
+*
 /stat - статистика
 /select_user - данные пользователя
 /setup_telegram_logs - настройка логов
 /send_to_users (message) - рассылка
-"""
+*"""
 
 payment_link_message = """
 🤖
@@ -159,3 +163,7 @@ message_to_user_message = """
 message_to_user_sent_message = """
 🤖
 Сообщение отправлено!"""
+
+set_new_limit_answer = """
+🤖
+Лимит установлен!"""

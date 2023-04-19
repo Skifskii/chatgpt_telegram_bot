@@ -5,9 +5,9 @@ from utils.db_api.schemas.user import User
 
 
 # ---------- User ----------
-async def add_user(user_id: int, username: str, firstname: str):
+async def add_user(user_id: int, username: str, firstname: str, total_images_generated, total_messages_sent):
     try:
-        user = User(user_id=user_id, username=username, firstname=firstname, limit=3, max_limit=3)
+        user = User(user_id=user_id, username=username, firstname=firstname, limit=3, max_limit=3, total_images_generated=total_images_generated, total_messages_sent=total_messages_sent)
         await user.create()
     except UniqueViolationError as error:
         await log_all('add_user', 'error', user_id, firstname, f'User did not added: {error}')
@@ -77,3 +77,8 @@ async def set_username(user_id, username):
 async def reset_limit(user_id, new_limit_value):
     user = await select_user(user_id)
     await user.update(limit=new_limit_value).apply()
+
+
+async def reset_max_limit(user_id, new_limit_value):
+    user = await select_user(user_id)
+    await user.update(max_limit=new_limit_value).apply()

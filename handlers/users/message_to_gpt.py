@@ -6,7 +6,7 @@ import openai
 from aiogram import types
 
 from data.texts import while_answer_is_generating_answer, \
-    unknown_error_answer, RateLimitError_answer, InvalidRequestError_answer
+    unknown_error_answer, RateLimitError_answer, InvalidRequestError_answer, ban_answer, limit_answer
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
@@ -14,20 +14,24 @@ from utils.db_api.quick_commands import stat as db_stat
 from logs.log_all import log_all
 from utils.openai_api.gpt import request_to_gpt
 
-from filters import IsNotBanned
 
-
-@dp.message_handler(IsNotBanned())
+@dp.message_handler()
 async def send(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
+        if user.status == 'ban':
+            await message.answer(ban_answer)
+            return
+        if user.status == 'user' and user.limit == 0:
+            await message.answer(limit_answer)
+            return
         answer_generating_message = await message.answer(while_answer_is_generating_answer)
         await db_stat.add_new_request_to_stats()
         messages = json.loads(await db_users.get_story(message.from_user.id))
         messages['messages'].append({"role": "user", "content": message.text})
 
-        # gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
-        gpt_answer, tokens_spent = 'hi', 1
+        gpt_answer, tokens_spent = await request_to_gpt(messages['messages'])
+        # gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
         await message.answer(gpt_answer)
