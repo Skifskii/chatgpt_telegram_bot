@@ -19,6 +19,7 @@ from utils.openai_api.gpt import request_to_gpt
 async def send(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
+        await db_users.set_username(user.user_id, message.from_user.username)
         if user.status == 'ban':
             await message.answer(ban_answer)
             return
