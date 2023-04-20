@@ -30,15 +30,15 @@ async def print_user_info(message: types.Message, state: FSMContext):
         await state.update_data(user_id=int(user_id))
         user = await db_users.select_user(int(user_id))
         await message.answer(f"""
-👤 Пользователь {user_id}
+👤 Пользователь `{user_id}`
 
-имя: {user.firstname}
-username: @{user.username}
-статус: {user.status}
-лимит: {user.limit}/{user.max_limit}
+имя: *{user.firstname}*
+username: *@{user.username}*
+статус: *{user.status}*
+лимит: *{user.limit}/{user.max_limit}*
 
-запросов к ChatGPT: {user.total_messages_sent}
-изображений сгенерировано: {user.total_images_generated}
+запросов к ChatGPT: *{user.total_messages_sent}*
+изображений сгенерировано: *{user.total_images_generated}*
 """, reply_markup=ikb_actions_with_user)
         await SelectUser.status.set()
     except AttributeError as error:
@@ -56,7 +56,7 @@ async def btn_change_status(query: types.CallbackQuery, state: FSMContext):
     try:
         data = await state.get_data()
         await query.message.edit_text(f"""
-👤 Пользователь {data.get('user_id')}
+👤 Пользователь *{data.get('user_id')}*
 
 Выберите новый статус
 """, reply_markup=ikb_choose_new_status)

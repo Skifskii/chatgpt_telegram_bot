@@ -2,8 +2,10 @@ from datetime import date
 
 import json
 
+import aiogram
 import openai
 from aiogram import types
+from aiogram.types import ParseMode
 
 from data.texts import while_answer_is_generating_answer, \
     unknown_error_answer, RateLimitError_answer, InvalidRequestError_answer, ban_answer, limit_answer
@@ -35,7 +37,10 @@ async def send(message: types.Message):
         # gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
-        await message.answer(gpt_answer)
+        if '`' in gpt_answer:
+            await message.answer(gpt_answer)
+        else:
+            await message.answer(gpt_answer, parse_mode=ParseMode.HTML)
         messages['messages'].append({"role": "assistant", "content": gpt_answer})
 
         def replace_bsn_from_start(s):

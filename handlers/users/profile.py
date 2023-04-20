@@ -11,7 +11,7 @@ from logs.log_all import log_all
 async def command_profile(message: types.Message):
     try:
         user = await db_users.select_user(message.from_user.id)
-        answer_text = f'👤 {user.firstname}\nСтатус: {user.status}'
+        answer_text = f'👤 *{user.firstname}*\nСтатус: *{user.status}*'
         if user.max_limit >= 0:
             answer_text += f'\nДоступные запросы: {user.limit}/{user.max_limit}'
         await message.answer(answer_text)
