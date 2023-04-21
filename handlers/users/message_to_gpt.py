@@ -2,6 +2,7 @@ from datetime import date
 
 import json
 
+import aiogram
 import openai
 from aiogram import types
 from aiogram.types import ChatActions
@@ -39,7 +40,10 @@ async def send(message: types.Message):
         # gpt_answer, tokens_spent = 'hi', 1
 
         await bot.delete_message(answer_generating_message.chat.id, answer_generating_message.message_id)
-        await message.answer(gpt_answer)
+        try:
+            await message.answer(gpt_answer, parse_mode=types.ParseMode.MARKDOWN)
+        except aiogram.utils.exceptions.CantParseEntities as error:
+            await message.answer(gpt_answer, parse_mode=types.ParseMode.HTML)
         messages['messages'].append({"role": "assistant", "content": gpt_answer})
 
         def replace_bsn_from_start(s):
