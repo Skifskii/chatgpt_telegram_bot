@@ -3,7 +3,6 @@ from aiogram import types
 from filters import IsAdmin
 from keyboards.inline import ikb_telegram_logs_permissions
 from loader import dp, bot
-from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import telegram_log_permission as db_tgperms
 
 from data.texts import unknown_error_answer, telegram_logs_permission_symbols
@@ -13,14 +12,13 @@ from logs.log_all import log_all
 @dp.message_handler(IsAdmin(), commands='setup_telegram_logs')
 async def setup_telegram_logs(message: types.Message):
     try:
-        user = await db_users.select_user(message.from_user.id)
-        if user.status != 'admin':
-            return
-        statuses = (await db_tgperms.select_permissions())[0]
-        await bot.send_message(message.from_user.id,
-                               f'{telegram_logs_permission_symbols[statuses.info]} Info\n{telegram_logs_permission_symbols[statuses.warning]} Warning\n{telegram_logs_permission_symbols[statuses.error]} Error',
+        admin_perms = await db_tgperms.select_admin_permissions(message.from_user.id)
+        await bot.send_message(message.from_user.id, f"""
+{telegram_logs_permission_symbols[admin_perms['info']]} Info
+{telegram_logs_permission_symbols[admin_perms['warning']]} Warning
+{telegram_logs_permission_symbols[admin_perms['error']]} Error""",
                                reply_markup=ikb_telegram_logs_permissions)
-    except Exception as error:
+    except ZeroDivisionError as error:
         await message.answer(unknown_error_answer)
         await log_all('setup_telegram_logs', 'error', message.from_user.id, message.from_user.first_name, error)
 
@@ -54,5 +52,5 @@ async def tglog_messages_back(query: types.CallbackQuery):
             new_statuses.append(1)
         else:
             new_statuses.append(0)
-    await db_tgperms.reset_permissions(new_statuses)
+    await db_tgperms.reset_permissions(new_statuses, admin_id=query.from_user.id)
     await bot.delete_message(query.message.chat.id, query.message.message_id)

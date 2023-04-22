@@ -4,8 +4,9 @@ from sqlalchemy import Column, sql, Integer
 
 class TelegramLogPermission(BaseModel):
     __tablename__ = 'tg_log_permissions'
-    info = Column(Integer, primary_key=True, default=0)
-    warning = Column(Integer, default=0)
-    error = Column(Integer, default=0)
+    admin_id = Column(Integer, primary_key=True)
+    info = Column(Integer, default=1)
+    warning = Column(Integer, default=1)
+    error = Column(Integer, default=1)
 
     query: sql.select
