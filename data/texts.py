@@ -146,6 +146,7 @@ admin_funcs_info_answer = """
 /select_user - данные пользователя
 /setup_telegram_logs - настройка логов
 /send_to_users (message) - рассылка
+/add_key (key) - добавить API ключ OpenAI
 *"""
 
 payment_link_message = """

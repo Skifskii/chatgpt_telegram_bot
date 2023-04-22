@@ -12,6 +12,7 @@ from data.texts import while_answer_is_generating_answer, \
 from loader import dp, bot
 from utils.db_api.quick_commands import user as db_users
 from utils.db_api.quick_commands import stat as db_stat
+from utils.db_api.quick_commands import openai_key as db_openai_key
 
 from logs.log_all import log_all
 from utils.openai_api.gpt import request_to_gpt
@@ -58,11 +59,17 @@ async def send(message: types.Message):
     except openai.error.InvalidRequestError as error:
         await db_users.clear_story(message.from_user.id)
         await message.answer(InvalidRequestError_answer)
-        await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name,
+        await log_all('message_to_gpt', 'warning', message.from_user.id, message.from_user.first_name,
                       f'openai.error.InvalidRequestError - {error}')
     except openai.error.RateLimitError as error:
-        await message.answer(RateLimitError_answer)
-        await log_all('message_to_gpt', 'error', message.from_user.id, message.from_user.first_name, f'openai.error.RateLimitError - {error}')
+        if str(error) == 'You exceeded your current quota, please check your plan and billing details.':
+            await db_openai_key.reset_key()
+            await message.answer(InvalidRequestError_answer)
+            await log_all('message_to_gpt', 'warning', message.from_user.id, message.from_user.first_name,
+                          f'openai.error.RateLimitError - {error}\n\nКлюч изменен.')
+        else:
+            await message.answer(RateLimitError_answer)
+            await log_all('message_to_gpt', 'warning', message.from_user.id, message.from_user.first_name, f'openai.error.RateLimitError - {error}')
     except Exception as error:
         await message.answer(unknown_error_answer)
         print(Exception.with_traceback())
