@@ -16,6 +16,8 @@ async def change_common_limit(message: types.Message):
         await db_common_limit.set_common_limit(new_limit)
         users = await db_user.select_all_users()
         for user in users:
+            if user.max_limit == -1:
+                continue
             await db_user.reset_max_limit(user.user_id, new_limit)
             await db_user.reset_limit(user.user_id, new_limit)
         await message.answer('Лимит изменен для всех пользователей!')
