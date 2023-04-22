@@ -147,6 +147,7 @@ admin_funcs_info_answer = """
 /setup_telegram_logs - настройка логов
 /send_to_users (message) - рассылка
 /add_key (key) - добавить API ключ OpenAI
+/change_common_limit (limit) - изменить лимит для всех пользователей
 *"""
 
 payment_link_message = """

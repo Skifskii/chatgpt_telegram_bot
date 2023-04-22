@@ -2,12 +2,13 @@ from asyncpg import UniqueViolationError
 
 from logs.log_all import log_all
 from utils.db_api.schemas.user import User
+from utils.db_api.quick_commands import common_limit as db_common_limit
 
 
-# ---------- User ----------
 async def add_user(user_id: int, username: str, firstname: str):
     try:
-        user = User(user_id=user_id, username=username, firstname=firstname, limit=2, max_limit=2)
+        common_limit = await db_common_limit.get_common_limit()
+        user = User(user_id=user_id, username=username, firstname=firstname, limit=common_limit, max_limit=common_limit)
         await user.create()
     except UniqueViolationError as error:
         await log_all('add_user', 'error', user_id, firstname, f'User did not added: {error}')

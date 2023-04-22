@@ -6,6 +6,7 @@ from .start_telegram_logs import dp
 from .select_user import dp
 from .send_to_users import dp
 from .add_key import dp
+from .change_common_limit import dp
 
 
 __all__ = ['dp']
